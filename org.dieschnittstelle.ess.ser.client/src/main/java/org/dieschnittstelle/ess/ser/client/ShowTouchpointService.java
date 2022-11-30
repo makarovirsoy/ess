@@ -184,19 +184,22 @@ public class ShowTouchpointService {
 
         logger.debug("client running: {}", client.isRunning());
 
+        // create request
         int touchpointId = (int) tp.getId();
-        String fullUrl = "http://localhost:8080/api/touchpoints/delete/".concat(String.valueOf(touchpointId)) ;
-
+        String fullUrl = "http://localhost:8080/api/touchpoints/delete/".concat(String.valueOf(touchpointId));
         HttpDelete request = new HttpDelete(fullUrl);
-        Future<HttpResponse> responseFuture = client.execute(request,null);
-        try {
-        HttpResponse response = responseFuture.get();
-        logger.info("Current Delete response " + response);
+        //execute the request
+        Future<HttpResponse> responseFuture = client.execute(request, null);
 
-        if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK){
-               
-        }
-        }catch (ExecutionException | InterruptedException e) {
+        try {
+            // get the response
+            HttpResponse response = responseFuture.get();
+            show("Current Delete response " + response);
+
+            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+                show("Object Deleted successful");
+            }
+        } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
@@ -221,58 +224,51 @@ public class ShowTouchpointService {
         try {
 
             // create post request for the api/touchpoints uri
-
-            // create an ObjectOutputStream from a ByteArrayOutputStream - the
-            // latter must be accessible via a variable
-
-            // write the object to the output stream
-
-            // create a ByteArrayEntity and pass it the byte array from the
-            // output stream
-
-            // set the entity on the request
-
-            // execute the request, which will return a Future<HttpResponse> object
-
-            // get the response from the Future object
-
-            // log the status line
-
-            // evaluate the result using getStatusLine(), use constants in
-            // HttpStatus
-
-            /* if successful: */
-
-            // create an object input stream using getContent() from the
-            // response entity (accessible via getEntity())
-
-            // read the touchpoint object from the input stream
-
-            // return the object that you have read from the response
-
             String url = "http://localhost:8080/api/touchpoints";
             HttpPost request = new HttpPost(url);
 
+            // create an ObjectOutputStream from a ByteArrayOutputStream - the
+            // latter must be accessible via a variable
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
+            // write the object to the output stream
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
             objectOutputStream.writeObject(tp);
 
+
+            // create a ByteArrayEntity and pass it the byte array from the
+            // output stream
             byte[] requestData = byteArrayOutputStream.toByteArray();
             ByteArrayEntity byteArrayEntity = new ByteArrayEntity(requestData);
 
+            // set the entity on the request
             request.setEntity(byteArrayEntity);
 
+            // execute the request, which will return a Future<HttpResponse> object
             Future<HttpResponse> httpResponseFuture = client.execute(request, null);
 
 
+            // get the response from the Future object
             HttpResponse response = httpResponseFuture.get();
-            logger.info("Current Post Response: " + response);
+
+            // log the status line
+            show("Current Post Response: " + response);
+
+            // evaluate the result using getStatusLine(), use constants in
+            // HttpStatus
             StatusLine statusLine = response.getStatusLine();
 
+
+            /* if successful: */
             if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
+                // create an object input stream using getContent() from the
+                // response entity (accessible via getEntity())
                 ObjectInputStream objectInputStream = new ObjectInputStream(response.getEntity().getContent());
+
+                // read the touchpoint object from the input stream
                 Object toutchPoint = objectInputStream.readObject();
+
+                // return the object that you have read from the response
                 return (AbstractTouchpoint) toutchPoint;
             }
 
